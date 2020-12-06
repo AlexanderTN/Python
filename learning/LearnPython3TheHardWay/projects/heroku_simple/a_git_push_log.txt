@@ -1,0 +1,67 @@
+git -c diff.mnemonicprefix=false -c core.quotepath=false --no-optional-locks push -v --tags heroku master:master
+POST git-receive-pack (1456 bytes)
+remote: Compressing source files... done.        
+remote: Building source:        
+
+remote: 
+remote: -----> Python app detected        
+
+remote: -----> Found python-3.7.3, removing        
+remote: -----> Installing python-3.7.6        
+remote: -----> Installing pip        
+remote: -----> Installing SQLite3        
+remote: -----> Installing requirements with pip        
+remote:        Collecting django        
+remote:          Downloading Django-3.0.5-py3-none-any.whl (7.5 MB)        
+remote:        Collecting gunicorn        
+remote:          Downloading gunicorn-20.0.4-py2.py3-none-any.whl (77 kB)        
+remote:        Collecting django-heroku        
+remote:          Downloading django_heroku-0.3.1-py2.py3-none-any.whl (6.2 kB)        
+remote:        Collecting pytz        
+remote:          Downloading pytz-2019.3-py2.py3-none-any.whl (509 kB)        
+
+remote:        Collecting sqlparse>=0.2.2        
+remote:          Downloading sqlparse-0.3.1-py2.py3-none-any.whl (40 kB)        
+remote:        Collecting asgiref~=3.2        
+remote:          Downloading asgiref-3.2.7-py2.py3-none-any.whl (19 kB)        
+remote:        Collecting whitenoise        
+remote:          Downloading whitenoise-5.0.1-py2.py3-none-any.whl (20 kB)        
+remote:        Collecting dj-database-url>=0.5.0        
+remote:          Downloading dj_database_url-0.5.0-py2.py3-none-any.whl (5.5 kB)        
+
+remote:        Collecting psycopg2        
+remote:          Downloading psycopg2-2.8.5.tar.gz (380 kB)        
+
+remote:        Building wheels for collected packages: psycopg2        
+remote:          Building wheel for psycopg2 (setup.py): started        
+remote:          Building wheel for psycopg2 (setup.py): finished with status 'done'        
+remote:          Created wheel for psycopg2: filename=psycopg2-2.8.5-cp37-cp37m-linux_x86_64.whl size=454941 sha256=75a471eb1c5ebb44681142345263081d89136007e8bb200b9bbd4fe6bc388d8b        
+remote:          Stored in directory: /tmp/pip-ephem-wheel-cache-jgxzx_mx/wheels/69/74/ec/7764aea035627654bf137f89a91405ac239c569ce10ae87137        
+remote:        Successfully built psycopg2        
+
+
+remote:        Installing collected packages: pytz, sqlparse, asgiref, django, gunicorn, whitenoise, dj-database-url, psycopg2, django-heroku        
+remote:        Successfully installed asgiref-3.2.7 dj-database-url-0.5.0 django-3.0.5 django-heroku-0.3.1 gunicorn-20.0.4 psycopg2-2.8.5 pytz-2019.3 sqlparse-0.3.1 whitenoise-5.0.1        
+remote: -----> $ python manage.py collectstatic --noinput        
+remote:        131 static files copied to '/tmp/build_de5b74fd677f90dab88ef55c8059e387/staticfiles', 411 post-processed.        
+remote: 
+remote: -----> Discovering process types        
+remote:        Procfile declares types -> web        
+remote: 
+remote: -----> Compressing...        
+
+
+remote:        Done: 55.8M        
+remote: -----> Launching...        
+remote:        Released v6        
+remote:        https://secure-bayou-17739.herokuapp.com/ deployed to Heroku        
+remote: 
+
+remote: Verifying deploy... done.        
+Pushing to https://git.heroku.com/secure-bayou-17739.git
+To https://git.heroku.com/secure-bayou-17739.git
+   443a90c..9a41ac0  master -> master
+updating local tracking ref 'refs/remotes/heroku/master'
+
+
+Completed successfully.

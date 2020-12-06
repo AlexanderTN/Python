@@ -1,0 +1,213 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Hello Worldd</title>
+</head>
+  <script src="pixi/pixi.min.js">
+    //   <script src="pixi/pixi.min.js">
+    
+  </script>
+<!-- <style>* {padding: 10; margin: 10}</style> -->
+<body>
+  <script type="text/javascript">
+    // Using Pixi Alias
+    let Application = PIXI.Application,
+        loader = PIXI.loader,
+        resources = PIXI.loader.resources,
+        Utils = PIXI.utils,
+        TextureCache = PIXI.utils.TextureCache,
+        Rectangle = PIXI.Rectangle,
+        Sprite = PIXI.Sprite;
+    //Create a Pixi Application
+    let app = new Application({
+        width: 512, 
+        height: 512, 
+        antialias: true,
+        transparent: false,
+        forceCanvas: false
+        }
+    );
+    //Add the canvas that Pixi automatically created for you to the HTML document
+    document.body.appendChild(app.view);
+
+    let type = "WebGL"
+    if(!Utils.isWebGLSupported()){
+      type = "canvas"
+    }
+    else {
+        Utils.sayHello("WebGL supported");
+    }
+
+    Utils.sayHello(type);
+    app.renderer.backgroundColor = 0x061639;
+    canvas_width = app.renderer.view.width;
+    canvas_height = app.renderer.view.height;
+    console.log(canvas_width);
+    //debugger;
+    console.log(canvas_height);
+    app.renderer.autoResize = true;
+    app.renderer.resize(512,512)
+
+    // Resize CSS
+    app.renderer.view.style.position = "absolute";
+    app.renderer.view.style.display = "block";
+    app.renderer.autoResize = true;
+    app.renderer.resize(window.innerWidth, window.innerHeight);
+
+    // Loading images into texture cache
+    // PIXI.utils.TextureCache["images/cat.png"];
+    // let texture = PIXI.utils.TextureCatche["images/anySpriteImage.png"];
+    // let sprite = new PIXI.Sprite(texture);
+
+    loader
+        .add({
+                name: 'cat',
+                url: 'images/cat.png'
+             }, function () {})
+        .add("images/tileset.png")
+        .add({
+                name: 'dungeon',
+                url: 'images/dungeon.png',
+                onComplete: function () { console.log("Finished loading dungeon")}
+             })        
+        .add("images/TamTest.json")
+        .on("progress", loadProgressHandler)
+        .load(setup);
+    //var cat;
+    function loadProgressHandler(loader, resource) {
+        // Display the file `url` currently being loaded
+        console.log("loading: " + resource.url);
+
+        //Display the percentage of files currently load
+        console.log("progress: " + loader.progress + "%");
+
+        // If you gave your files names as the first argument
+        // of the `add` method, you can access them like this
+        // console.log("loading: " + resource.name);
+    }
+
+    let dungeon, explorer, treasure, id;
+
+    function setup() {
+        // This code will run when the loader has finished loading the image
+        // cat = new Sprite(
+        // resources.cat.texture
+        // );
+        // app.stage.addChild(cat)
+        // cat.visible = true;
+        
+        // cat.x = 96;
+        // cat.y = 96;
+        // cat.position.set(256, 256);
+        // console.log('cat.x = ' + cat.x + ', cat.y = ' + cat.y);
+
+        // cat.width = 120;
+        // cat.height = 120;
+        // console.log('Before scaling -> cat.width = ' + cat.width + ', cat.height= ' + cat.height); // 80x120
+        // //cat.scale.x = 0.5;
+        // //cat.scale.y = 0.5;
+        // // = cat.scale.set(0.5, 0.5);
+        // console.log('After scaling - > cat.width = ' + cat.width + ', cat.height= ' + cat.height); // 32x32 -> So scale take the original size as input, it does not care about current size
+        // //cat.anchor.set(0.5, 0.5);
+        // console.log('cat.anchor.x = ' + cat.anchor.x + ', cat.anchor.y = ' + cat.anchor.y);
+        
+        // //cat.pivot.set(10, 10);
+        // //cat.angle.set(90);
+
+        // console.log('Position after setting Pivot (10,10) cat.x = ' + cat.x + ', cat.y = ' + cat.y);
+        // console.log('Pivot after setting Pivot (10,10) cat.pivot.x = ' + cat.pivot.x + ', cat.pivot.y = ' + cat.pivot.y);
+        // //cat.rotation = 2;
+
+        // // Create sprite from tileset sub-image
+        // let texture = TextureCache["images/tileset.png"];
+
+        // let rectangle = new Rectangle(192, 128, 64, 64);
+
+        // texture.frame = rectangle;
+
+        // let rocket = new Sprite(texture);
+
+        // rocket.x = 100;
+        // rocket.y = 100;
+
+        // app.stage.addChild(rocket);
+        //app.renderer.render(app.stage);
+
+        // There are 3 ways to make sprites from textures atlas frames
+
+        //1. Access the `TextureCache` directly
+        let dungeonTexture = TextureCache["dungeon.png"];
+        dungeon = new Sprite(dungeonTexture);
+        app.stage.addChild(dungeon);
+
+        //2. Access the texture using through the loader's `resources`:
+        explorer = new Sprite(
+          resources["images/TamTest.json"].textures["explorer.png"]  
+        );
+        explorer.x = 68;
+
+        // Center the explorer vertically
+        explorer.y = app.stage.height / 2 - explorer.height / 2;
+        app.stage.addChild(explorer);
+
+        //3. Create an optional alias called `id` for all the texture atlas
+        //frame id textures.
+        id = resources["images/TamTest.json"].textures; // Alias of alias is allowed :D
+        //id = PIXI.loader.resources["images/TamTest.json"].textures;
+        // Make the treasure box using the alias
+        treasure = new Sprite(id["treasure.png"]);
+        
+        // Position the treasure next to the right edge of the canvas
+        treasure.x = app.stage.width - treasure.width - 48;
+        treasure.y = app.stage.height / 2 - treasure.height / 2;
+        app.stage.addChild(treasure);
+
+        door = new Sprite(id["door.png"]);
+        door.position.set(32, 0);
+        app.stage.addChild(door);
+
+        // Make the blobs
+        let numberOfBlobs = 6,
+            spacing = 48, 
+            xOffset = 150;
+
+        //Make as many blobs as there are `numberOfBlobs`
+        for (let i = 0; i < numberOfBlobs; i++) {
+            // Make a blob
+            let blob = new Sprite(id["blob.png"]);
+
+            //Space each blob horizontally according to the `spacing` value
+            //`xOffset` determines the point from the left of the screen
+            let x = xOffset + i * spacing;
+            //Give the blob a random y position
+            //(`randomInt` is a custom function - see below)
+            let y = randomInt(0, app.stage.height - blob.height);
+
+            blob.x = x;
+            blob.y = y;
+            app.stage.addChild(blob)
+        }
+    }
+    //cat.visible = false;
+    // Make the exit door
+
+    function randomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+    //https://stackoverflow.com/questions/1527803/generating-random-whole-numbers-in-javascript-in-a-specific-range
+
+    function getRandomArbitrary(min, max) {
+      return Math.random() * (max-min) + min;
+    }
+    function getRandomInt(min, max) {
+      min = Math.ceil(min);
+      max = Math.floor(max);
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+
+    
+  </script>
+</body>
+</html>

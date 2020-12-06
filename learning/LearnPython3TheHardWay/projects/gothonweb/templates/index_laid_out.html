@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+
+{% block content %}
+{% if greeting %}
+    I just want tot say
+    <em style="color: green; font-size: 2em;"> {{ greeting }}</em>
+{% else %}
+    <em>Hello</em>, world!
+{% endif %}
+
+{% endblock %}

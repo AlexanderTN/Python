@@ -1,0 +1,187 @@
+<!doctype html>
+<html>
+    <meta charset="utf-8">
+    <title>        
+         Keyboard Movement
+    </title>
+    <script src='pixi/pixi.min.js'></script>
+    <body>
+        <script type="text/javascript">
+            //Using alias
+            let Application = PIXI.Application,
+                loader = PIXI.loader,
+                resources = PIXI.loader.resources,
+                Rectangle = PIXI.Rectangle,
+                Utils = PIXI.utils,
+                TextureCache = PIXI.utils.TextureCache,
+                Sprite = PIXI.Sprite;
+            let app = new Application(
+                {
+                    width : 512,
+                    height : 512,
+                    antialias : true,
+                    //forceCanvas : false,
+                    //resolution: 1,
+                    transparent : false // Set this = true => Will lost the background
+                }
+            );
+            
+            // Important: Add the canvas that Pixi automatically created for you to the HTML document
+            document.body.appendChild(app.view);
+            let type = "WebGL";
+            if (!Utils.isWebGLSupported())
+            {
+                type = "Canvas";
+            }
+            Utils.sayHello(type);
+                    
+            // app.renderer.backgroundColor = 0x061639;
+            // canvas_width = app.renderer.view.width;
+            // canvas_height = app.renderer.view.height;
+            // console.log(canvas_width);
+            // //debugger;
+            // console.log(canvas_height);
+            // app.renderer.autoResize = true;
+            // app.renderer.resize(512,512)
+
+            // // Resize CSS
+            // app.renderer.view.style.position = "absolute";
+            // app.renderer.view.style.display = "block";
+            // app.renderer.autoResize = true;
+            // app.renderer.resize(window.innerWidth, window.innerHeight);
+            loader
+                .add("images/cat.png")
+                .load(setup);
+            let cat, state;
+            function setup()
+            {
+                
+                //Create the `cat` sprite 
+                cat = new Sprite(resources["images/cat.png"].texture);
+                cat.y = 96; 
+                cat.vx = 0;
+                cat.vy = 0;
+                app.stage.addChild(cat);
+
+                //Capture the keyboard arrow keys
+                let left = keyboard(37),
+                    up = keyboard(38),
+                    right = keyboard(39),
+                    down = keyboard(40);
+
+                //Left arrow key `press` method
+                left.press = () => {
+                    //Change the cat's velocity when the key is pressed
+                    cat.vx = -5;
+                    cat.vy = 0;
+                };
+                
+                //Left arrow key `release` method
+                left.release = () => {
+                    //If the left arrow has been released, and the right arrow isn't down,
+                    //and the cat isn't moving vertically:
+                    //Stop the cat
+                    if (!right.isDown && cat.vy === 0) {
+                    cat.vx = 0;
+                    }
+                };
+
+                //Up
+                up.press = () => {
+                    cat.vy = -5;
+                    cat.vx = 0;
+                };
+                up.release = () => {
+                    if (!down.isDown && cat.vx === 0) {
+                    cat.vy = 0;
+                    }
+                };
+
+                //Right
+                right.press = () => {
+                    cat.vx = 5;
+                    cat.vy = 0;
+                };
+                right.release = () => {
+                    if (!left.isDown && cat.vy === 0) {
+                    cat.vx = 0;
+                    }
+                };
+
+                //Down
+                down.press = () => {
+                    cat.vy = 5;
+                    cat.vx = 0;
+                };
+                down.release = () => {
+                    if (!up.isDown && cat.vx === 0) {
+                    cat.vy = 0;
+                    }
+                };
+
+                //Set the game state
+                state = play;
+                
+                //Start the game loop 
+                app.ticker.add(delta => gameLoop(delta));
+            }
+            
+            function gameLoop(delta) {
+
+                state(delta);
+            }
+
+            function play(delta)
+            {
+                // Update the cat velocity
+                //cat.vx = 1;
+                //cat.vy = 2;
+                // Move the cat 1 pixel
+                cat.x += cat.vx;
+                cat.y += cat.vy;
+            }
+
+            function keyboard(keyCode)
+            {
+                var key = {};
+                key.code = keyCode;
+                key.isDown = false;
+                key.isUp = true;
+                key.press = undefined;
+                key.release = undefined;
+                //The `downHandler`
+                key.downHandler = event => {
+                    if (event.keyCode === key.code) {
+                        if (key.isUp && key.press) 
+                            key.press();
+                        key.isDown = true;
+                        key.isUp = false;
+                        event.preventDefault();
+                    }
+                    
+                };
+
+                //The `upHandler`
+                key.upHandler = event => {
+                    if (event.keyCode === key.code) {
+                        if (key.isDown && key.release) 
+                            key.release();
+                        key.isDown = false;
+                        key.isUp = true;
+                        event.preventDefault();
+                    }
+                    event.preventDefault();
+                };
+
+                //Attach event listeners
+                window.addEventListener(
+                    "keydown", key.downHandler.bind(key), false
+                );
+                window.addEventListener(
+                    "keyup", key.upHandler.bind(key), false
+                );
+                return key;
+            }
+        </script>
+    </body>>
+</html>

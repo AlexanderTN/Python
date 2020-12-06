@@ -1,0 +1,244 @@
+<!doctype html>
+<html>
+    <meta charset="utf-8">
+    <title>        
+         Moving Sprite
+    </title>
+    <script src='pixi/pixi.min.js'></script>
+    <body>
+        <script type="text/javascript">
+            //Using alias
+            let Application = PIXI.Application,
+                loader = PIXI.loader,
+                resources = PIXI.loader.resources,
+                Rectangle = PIXI.Rectangle,
+                Utils = PIXI.utils,
+                TextureCache = PIXI.utils.TextureCache,
+                Sprite = PIXI.Sprite;
+            let app = new Application(
+                {
+                    width : 512,
+                    height : 512,
+                    antialias : true,
+                    forceCanvas : false,
+                    transparent : false // Set this = true => Will lost the background
+                }
+            );
+            
+            // Important: Add the canvas that Pixi automatically created for you to the HTML document
+            document.body.appendChild(app.view);
+            let type = "WebGL";
+            if (!Utils.isWebGLSupported())
+            {
+                type = "Canvas";
+            }
+            Utils.sayHello(type);
+
+            // // Initialize the canvas
+            // app.renderer.backgroundColor = 0x061639;
+            // canvas_width = app.renderer.view.width;
+            // canvas_height = app.renderer.view.height;
+            
+            // app.renderer.autoResize = true;
+            // app.renderer.resize(512, 512);
+            // console.log("app Renderer Width = " + app.renderer.width + ",app.renderer.height = " + app.renderer.height);
+            // // Resize CSS
+            // app.renderer.view.style.position = "absolute";
+            // app.renderer.view.style = "block";
+            // app.renderer.autoResize = true;
+            // app.renderer.resize(window.innerWidth, window.innerHeight);
+            // console.log("Window.innerWidth = " + window.innerWidth + ",Window.innerHeight = " + window.innerHeight);
+            // console.log("app Renderer Width = " + app.renderer.width + ",app.renderer.height = " + app.renderer.height);
+            //Add the canvas that Pixi automatically created for you to the HTML document
+            document.body.appendChild(app.view);
+
+            
+            app.renderer.backgroundColor = 0x061639;
+            canvas_width = app.renderer.view.width;
+            canvas_height = app.renderer.view.height;
+            console.log(canvas_width);
+            //debugger;
+            console.log(canvas_height);
+            app.renderer.autoResize = true;
+            app.renderer.resize(512,512)
+
+            // Resize CSS
+            app.renderer.view.style.position = "absolute";
+            app.renderer.view.style.display = "block";
+            app.renderer.autoResize = true;
+            app.renderer.resize(window.innerWidth, window.innerHeight);
+            loader
+                .add("images/animals.json")
+                .load(setup);
+            let cat, state;
+
+            function setup()
+            {
+                id = PIXI.loader.resources["images/animals.json"].textures;
+                cat = new Sprite(id["cat.png"]);
+                cat.position.set(16, 16);
+                //cat.y = 100;
+                cat.vx = 0;
+                cat.vy = 0;
+                //app.stage.addChild(cat);
+                    
+                // The hedgehog
+                let hedgehog = new Sprite(id["hedgehog.png"])
+                hedgehog.position.set(32, 32)
+                let tiger = new Sprite(id["tiger.png"])
+                tiger.position.set(64, 64);
+
+                let animals = new PIXI.Container();
+                animals.addChild(cat);
+                animals.addChild(hedgehog);
+                animals.addChild(tiger);
+
+                app.stage.addChild(animals);
+                animals.position.set(64, 64);
+                console.log(animals.children)
+                console.log(cat.x);
+
+                console.log(animals.toGlobal(cat.position));
+                console.log(cat.parent.toGlobal(cat.position));
+                console.log("tiger.getGlobalPosition().x:", tiger.getGlobalPosition().x);
+                console.log("tiger.getGlobalPosition().y:", tiger.getGlobalPosition().y);
+
+                console.log("tiger.toLocal(tiger.position, cat).x: " + tiger.toLocal(tiger.position, cat).x); //16??
+                console.log("tiger.toLocal(hedgehog.position, cat).x: " + hedgehog.toLocal(hedgehog.position, cat).x); //16??
+                //animals.rotation = 0.8;
+                //tiger.rotation = 0.8;
+                //console.log(tiger.anchor.x, tiger.anchor.y) //? Why this value is wrong, in the json it's x:0.5, y:0.5
+                
+                //Capture the keyboard arrow keys
+                let left = keyboard("ArrowLeft"),
+                    up = keyboard("ArrowUp"),
+                    right = keyboard("ArrowRight"),
+                    down = keyboard("ArrowDown");
+
+                //Left arrow key `press` method
+                left.press = () => {
+                    //Change the cat's velocity when the key is pressed
+                    cat.vx = -5;
+                    cat.vy = 0;
+                };
+                
+                //Left arrow key `release` method
+                left.release = () => {
+                    //If the left arrow has been released, and the right arrow isn't down,
+                    //and the cat isn't moving vertically:
+                    //Stop the cat
+                    if (!right.isDown && cat.vy === 0) {
+                    cat.vx = 0;
+                    }
+                };
+
+                //Up
+                up.press = () => {
+                    cat.vy = -5;
+                    cat.vx = 0;
+                };
+                up.release = () => {
+                    if (!down.isDown && cat.vx === 0) {
+                        cat.vy = 0;
+                    }
+                };
+
+                //Right
+                right.press = () => {
+                    cat.vx = 5;
+                    cat.vy = 0;
+                };
+                right.release = () => {
+                    if (!left.isDown && cat.vy === 0) {
+                        cat.vx = 0;
+                    }
+                };
+
+                //Down
+                down.press = () => {
+                    cat.vy = 5;
+                    cat.vx = 0;
+                };
+                down.release = () => {
+                    if (!up.isDown && cat.vx === 0) {
+                        cat.vy = 0;
+                    }
+                };
+
+
+                // Start the game loop by adding the `gameLoop` function to
+                // Pixi's `ticker` and providing it a ` delta` argument.
+                state = play;
+                app.ticker.add(delta => gameLoop(delta)); //  Need to understand this
+            }
+            
+            function gameLoop(delta) {
+
+                state(delta);
+            }
+
+            function play(delta)
+            {
+                // Update the cat velocity
+                //cat.vx = 1;
+                //cat.vy = 2;
+                // Move the cat 1 pixel
+                cat.x += cat.vx;
+                cat.y += cat.vy;
+            }
+
+            function keyboard(value)
+            {
+                let key = {};
+                key.value = value;
+                key.isDown = false;
+                key.isUp = true;
+                key.press = undefined;
+                key.release = undefined;
+                // The `downHandler`
+                key.downHandler = event => {
+                  if (event.key === key.value) {
+                      if (key.isUp && key.press) 
+                      {
+                          key.press();
+                      }
+                      key.isDown = true;
+                      key.isUp = false; 
+                      event.preventDefault();                     
+                  }                         
+                };
+                // The `upHandler`
+                key.upHandler = event => {
+                  if (event.key === key.value) {
+                      if (key.isDown && key.release) 
+                      {
+                          key.release();
+                      }
+                      key.isDown = false;
+                      key.isUp = true;  
+                      event.preventDefault();                    
+                  }  
+                  
+                };
+
+                //Attach event listeners
+                var downListener = key.downHandler.bind(key);
+                var upListener = key.upHandler.bind(key);
+                //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind
+                window.addEventListener(
+                    "keydown", downListener, false
+                );
+                window.addEventListener(
+                    "keyup", upListener, false
+                );               
+
+                // Detach event listeners
+                key.unsubscribe = () => {
+                    window.removeEventListener("keydown", downListener);
+                    window.removeEventListener("keyUp", upListener);
+                }
+                return key;
+            }
+        </script>
+    </body>>
+</html>
